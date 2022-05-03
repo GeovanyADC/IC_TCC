@@ -1,8 +1,8 @@
-from fastapi import FastAPI, Request
-import json
+from fastapi import FastAPI
 from pydantic import BaseModel
 from datetime import date
 import time
+import threading
 
 app = FastAPI()
 
@@ -27,6 +27,8 @@ produced_parts = 0
 # Força fim de produção
 force_end = False
 
+# Mutex para proteger o dict de leituras concorrentes
+mutex = threading.Lock()
 
 # Rota1: rota de inicialização de produção.
 @app.post("/start_production")
@@ -41,12 +43,14 @@ def start_production(production: current_production):
 
     # Lista de eventos
     # list_of_events = file.heuristica(production.pc_to_produce)
-    # global current_production_dict
 
+    mutex.acquire()
     current_production_dict["production_date"] = current_date
     current_production_dict["total_produced"] = production.pc_to_produce
     # current_production_dict["event_list"] = list_of_events
+    current_production_dict["event_list"] = ["a", "b", "c"]
     current_production_dict["machine_list"] = production.machine_list
+    mutex.release()
 
     return current_production_dict
 
