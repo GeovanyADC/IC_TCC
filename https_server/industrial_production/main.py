@@ -19,6 +19,7 @@ current_production_dict = {
     "event_list": None,
     "machine_list": None,
     "status": "stopped",
+    "final_event_list": None,
 }
 
 
@@ -36,12 +37,13 @@ def start_production(production: current_production):
     current_date = current_date.strftime("%d/%m/%Y")
 
     mutex.acquire()
-    time.sleep(10)
+
     # list_of_events = file.heuristica(production.pc_to_produce)
     current_production_dict["production_date"] = current_date
     current_production_dict["total_produced"] = production.pc_to_produce
     # current_production_dict["event_list"] = list_of_events
     current_production_dict["event_list"] = ["a", "b", "c"]
+    current_production_dict["final_event_list"] = ["a", "b", "c"]
     current_production_dict["machine_list"] = production.machine_list
     current_production_dict["status"] = "started"
     mutex.release()
@@ -53,15 +55,34 @@ def start_production(production: current_production):
 def send_event_to_client():
 
     if current_production_dict["status"] == "stopped":
-        return {"message": "stopped"}  # Produção não inicializada
+        return {"message": "stopped"}  # Production has not started
     elif current_production_dict["status"] == "finished":
-        return {"message": "finished"}  # Produção finalizada
+        return {"message": "finished"}  # Finished production
     else:  # Production is running -> return event to be triggered
         return {"message": current_production_dict["event_list"][0]}
 
 
+@app.put("/confirm_event")
+def update_event_list_controllable(event: str):
+
+    mutex.acquire()
+
+    event_from_list = current_production_dict["event_list"][0]
+
+    if event == event_from_list:
+
+        del current_production_dict["event_list"][0]
+
+        mutex.release()
+
+        return {"message": "updated"}  # Lista atualizada com sucesso
+    else:
+        mutex.release()
+        return {"message": "different"}  # Evento diferente do início da fila
+
+
 @app.put("/end_event")
-def update_event_list(event: str):
+def update_event_list_uncontrollable(event: str):
 
     mutex.acquire()
 

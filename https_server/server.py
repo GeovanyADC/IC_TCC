@@ -7,6 +7,8 @@
     - Manualmente ou com o código:
     - netsh advfirewall firewall add rule name="Allowing LAN connections" dir=in action=allow protocol=TCP localport=8432
     - Acessar a página como ipv4 do pc -> 192.168...
+
+    SENHA DO PGADMIN - 5492200
 """
 
 import uvicorn
