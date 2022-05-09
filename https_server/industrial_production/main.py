@@ -90,3 +90,5 @@ def update_event_list(event: str):
 
 # Implementar o insert_into_database
 # Separar as rotas das funções
+# event get successfull
+# save the list before update
