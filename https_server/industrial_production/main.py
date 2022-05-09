@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from datetime import date
 import time
 import threading
+import pandas as pd
 
 app = FastAPI()
 
@@ -23,8 +24,11 @@ current_production_dict = {
 }
 
 
-produced_parts = 0  # Peças produzidas
-force_end = False  # Força fim de produção
+def insert_into_database(dict):
+
+    data_df = pd.DataFrame.from_dict(dict)
+
+
 mutex = threading.Lock()  # Mutex para proteger o dict de leituras concorrentes
 
 # Rota1: rota de inicialização de produção.
@@ -111,5 +115,3 @@ def update_event_list_uncontrollable(event: str):
 
 # Implementar o insert_into_database
 # Separar as rotas das funções
-# event get successfull
-# save the list before update
