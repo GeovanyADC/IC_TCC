@@ -4,6 +4,8 @@ from datetime import date
 import time
 import threading
 import pandas as pd
+from sqlalchemy import create_engine
+import psycopg2
 
 app = FastAPI()
 
@@ -14,6 +16,7 @@ class current_production(BaseModel):
 
 
 current_production_dict = {
+    "start_time": None,
     "total_time": None,
     "production_date": None,
     "total_produced": None,
@@ -26,6 +29,14 @@ current_production_dict = {
 
 def insert_into_database(dict):
 
+    conn = psycopg2.connect(
+        host="localhost",
+        port=5432,
+        database="postgres",
+        user="postgres",
+        password="5492200",
+    )
+
     data_df = pd.DataFrame.from_dict(dict)
 
 
@@ -36,13 +47,13 @@ mutex = threading.Lock()  # Mutex para proteger o dict de leituras concorrentes
 def start_production(production: current_production):
 
     start = time.time()  # Tempo inicial da produção de 'x' peças
-
     current_date = date.today()  # Data atual
     current_date = current_date.strftime("%d/%m/%Y")
 
     mutex.acquire()
 
     # list_of_events = file.heuristica(production.pc_to_produce)
+    current_production_dict["start_time"] = start
     current_production_dict["production_date"] = current_date
     current_production_dict["total_produced"] = production.pc_to_produce
     # current_production_dict["event_list"] = list_of_events
