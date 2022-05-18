@@ -27,7 +27,7 @@ current_production_dict = {
 }
 
 
-def insert_into_database(dict):
+def insert_into_database():
 
     conn = psycopg2.connect(
         host="localhost",
@@ -37,7 +37,42 @@ def insert_into_database(dict):
         password="5492200",
     )
 
-    data_df = pd.DataFrame.from_dict(dict)
+    cursor_create_table = conn.cursor()
+    cursor_insert_table = conn.cursor()
+
+    try:
+        cursor_create_table.execute(
+            """
+            create table production (
+                user_id serial primary key,
+                total_time varchar(20) not null,
+                production_date date not null,
+                total_produced integer not null,
+                event_list text not null,
+                machine_list text not null
+            )
+            """
+        )
+    except:
+        print("Table already exists")
+
+    cursor_insert_table.execute(
+        """
+            insert into production(total_time, production_date, total_produced, event_list, machine_list)
+            values({0}, {1}, {2}, {3}, {4})
+        """.format(
+            current_production_dict["total_time"],
+            current_production_dict["production_date"],
+            current_production_dict["total_produced"],
+            str(current_production_dict["final_event_list"]),
+            str(current_production_dict["machine_list"]),
+        )
+    )
+
+    conn.commit()
+    conn.close()
+    cursor_create_table.close()
+    # data_df = pd.DataFrame.from_dict(dict)
 
 
 mutex = threading.Lock()  # Mutex para proteger o dict de leituras concorrentes
@@ -112,7 +147,13 @@ def update_event_list_uncontrollable(event: str):
             if current_production_dict["event_list"] == []:
 
                 current_production_dict["status"] = "finished"
-                # insert_into_database(current_production_dict) # Inserir dados da produção atual
+                end = time.time()
+
+                current_production_dict["total_time"] = int(
+                    end - current_production_dict["start_time"]
+                )
+
+                insert_into_database()  # Inserir dados da produção atual
 
             mutex.release()
             return {"message": "updated"}  # Lista atualizada com sucesso
