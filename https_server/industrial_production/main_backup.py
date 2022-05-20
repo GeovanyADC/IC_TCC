@@ -3,6 +3,8 @@ from pydantic import BaseModel
 from datetime import date
 import time
 import threading
+import pandas as pd
+from sqlalchemy import create_engine
 import psycopg2
 
 app = FastAPI()
@@ -23,6 +25,69 @@ current_production_dict = {
     "status": "stopped",
     "final_event_list": None,
 }
+
+
+def insert_into_database():
+
+    conn = psycopg2.connect(
+        host="localhost",
+        port=5432,
+        database="postgres",
+        user="postgres",
+        password="5492200",
+    )
+    conn1 = psycopg2.connect(
+        host="localhost",
+        port=5432,
+        database="postgres",
+        user="postgres",
+        password="5492200",
+    )
+
+    cursor_create_table = conn.cursor()
+    cursor_insert_table = conn1.cursor()
+
+    try:
+        cursor_create_table.execute(
+            """
+            create table production (
+                user_id serial primary key,
+                total_time varchar(20) not null,
+                production_date date not null,
+                total_produced integer not null,
+                event_list text not null,
+                machine_list text not null
+            )
+            """
+        )
+        conn.commit()
+    except:
+        print("Table already exists")
+
+    # Convertendo as duas listas em strings
+    a = (
+        " ".join(current_production_dict["final_event_list"]),
+    )  # Transforma a lista em string
+    b = " ".join(current_production_dict["machine_list"])
+
+    cursor_insert_table.execute(
+        """
+            insert into production (total_time, production_date, total_produced, event_list, machine_list)
+            values({0}, cast('{1}' as date), {2}, '{3}', '{4}')
+        """.format(
+            current_production_dict["total_time"],
+            current_production_dict["production_date"],
+            current_production_dict["total_produced"],
+            a[0],
+            b,
+        )
+    )
+    conn1.commit()
+    # cursor_create_table.close()
+    # cursor_insert_table.close()
+    conn.close()
+    conn1.close()
+
 
 mutex = threading.Lock()  # Mutex para proteger o dict de leituras concorrentes
 
@@ -113,61 +178,4 @@ def update_event_list_uncontrollable(event: str):
         return {"message": "finished"}  # Tentativa falha de atualização
 
 
-def insert_into_database():
-
-    conn = psycopg2.connect(
-        host="localhost",
-        port=5432,
-        database="postgres",
-        user="postgres",
-        password="5492200",
-    )
-    conn1 = psycopg2.connect(
-        host="localhost",
-        port=5432,
-        database="postgres",
-        user="postgres",
-        password="5492200",
-    )
-
-    cursor_create_table = conn.cursor()
-    cursor_insert_table = conn1.cursor()
-
-    try:
-        cursor_create_table.execute(
-            """
-            create table production (
-                user_id serial primary key,
-                total_time varchar(20) not null,
-                production_date date not null,
-                total_produced integer not null,
-                event_list text not null,
-                machine_list text not null
-            )
-            """
-        )
-        conn.commit()
-    except:
-        print("Table already exists")
-
-    # Convertendo as duas listas em strings
-    a = (
-        " ".join(current_production_dict["final_event_list"]),
-    )  # Transforma a lista em string
-    b = " ".join(current_production_dict["machine_list"])
-
-    cursor_insert_table.execute(
-        """
-            insert into production (total_time, production_date, total_produced, event_list, machine_list)
-            values({0}, cast('{1}' as date), {2}, '{3}', '{4}')
-        """.format(
-            current_production_dict["total_time"],
-            current_production_dict["production_date"],
-            current_production_dict["total_produced"],
-            a[0],
-            b,
-        )
-    )
-    conn1.commit()
-    conn.close()
-    conn1.close()
+# Separar as rotas das funções
