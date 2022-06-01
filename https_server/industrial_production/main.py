@@ -40,7 +40,7 @@ def start_production(production: current_production):
     current_production_dict["production_date"] = current_date
     current_production_dict["total_produced"] = production.pc_to_produce
     # current_production_dict["event_list"] = list_of_events
-    current_production_dict["event_list"] = ["as", "b", "c"]
+    current_production_dict["event_list"] = ["ads", "b", "c"]
     current_production_dict["final_event_list"] = ["aa", "b", "c"]
     current_production_dict["machine_list"] = production.machine_list
     current_production_dict["status"] = "started"
@@ -64,6 +64,8 @@ def send_event_to_client():
 def update_event_list_controllable(event: str):
 
     mutex.acquire()
+
+    print("eveto--", event)
 
     event_from_list = current_production_dict["event_list"][0]
 
