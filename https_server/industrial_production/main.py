@@ -12,7 +12,6 @@ class current_production(BaseModel):
     pc_to_produce: int
     machine_list: list
 
-
 current_production_dict = {
     "start_time": None,
     "total_time": None,
@@ -40,7 +39,7 @@ def start_production(production: current_production):
     current_production_dict["production_date"] = current_date
     current_production_dict["total_produced"] = production.pc_to_produce
     # current_production_dict["event_list"] = list_of_events
-    current_production_dict["event_list"] = ["ads", "b", "c"]
+    current_production_dict["event_list"] = ["B1_SOURCE", "b", "c"]
     current_production_dict["final_event_list"] = ["aa", "b", "c"]
     current_production_dict["machine_list"] = production.machine_list
     current_production_dict["status"] = "started"
@@ -106,7 +105,7 @@ def update_event_list_uncontrollable(event: str):
                 insert_into_database()  # Inserir dados da produção atual
 
             mutex.release()
-            return {"message": "updated"}  # Lista atualizada com sucesso
+            return {"message": "finished"}  # Lista atualizada com sucesso
         else:
             mutex.release()
             return {"message": "different"}  # Evento diferente do início da fila
