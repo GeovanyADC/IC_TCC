@@ -38,15 +38,16 @@
 
 static const char *TAG = "example";
 char event_read[30] = "";
+char event_to_update[30] = "";
+int event_to_process = -1;
 char request2[25] = "PUT /confirm_event?event=";
-char request3[21] = "PUT /end_event?event=";
 
 /* State machine representation:
     0 - waiting for an event
     1 - will update an event
-    2 - will finish a production
 */
 int state_machine = 0;
+int processed = 0;
 
 static const char *request1 = "GET " "/get_event" " HTTP/1.0\r\n"
     "Host: "WEB_SERVER":"WEB_PORT"\r\n"
@@ -144,24 +145,24 @@ static void readHttpResponse(int s){
     
 }
 
-static void stateMachineWork(){
+static void stateMachineControl(){
 
     if(strcmp(event_read, "B1_SOURCE") == 0){
 
-        // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
-        ESP_LOGI(TAG, "Event B1_SOURCE was triggered!");
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
-
-        // SEND THE EVENT OF END THA IS NOT CONTROLLABLE
-        strcpy(event_read, "B1_SOURCE_END");
+        // CONFIRM EVENT GOT
+        ESP_LOGI(TAG, "The event will be confirmed!");
+        strcpy(event_to_update, "B1_SOURCE");
         state_machine = 1;
+        event_to_process = 1;
+        processed = 0;
 
     }else if(strcmp(event_read, "B1_PREPARATION_LINE_A") == 0){
 
-
+        state_machine = 1;
+        event_to_process = 2;
     }else if(strcmp(event_read, "B1_PREPARATION_LINE_B") == 0){
         
-
+        event_to_process = 3;
     }else if(strcmp(event_read, "B1_LINE_A") == 0){
  
         // EXECUTE SOME MOVIMENTS
@@ -198,15 +199,91 @@ static void stateMachineWork(){
         
 
     
-    }else if(strcmp(event_read, "stopped") == 0){
-
-        ESP_LOGI(TAG, "Productio has not started, after 3 seconds a event will be get again!");
+    }else if(strcmp(event_read, "stopped") == 0){ // state_machine is 0 always that the return is 'stopped'
+        ESP_LOGI(TAG, "Production has not started, after 3 seconds a event will be get again!");
         vTaskDelay(3000 / portTICK_PERIOD_MS);
         
+    }else if(strcmp(event_read, "finished") == 0){ // state_machine is 0 or 2, because finished can be received from get_event or confirm_event routes
+        ESP_LOGI(TAG, "Production has finished, after 3 seconds a event will be get again!");
+        vTaskDelay(3000 / portTICK_PERIOD_MS);
+        state_machine = 0;
 
-    }else{ // will be send a finished event
-        ESP_LOGI(TAG, "Productio has finished, after 5 seconds a event will be get again!");
+    }else if(strcmp(event_read, "updated") == 0){
+        ESP_LOGI(TAG, "Production has updated, an new event will be get again!");
+        if(state_machine == 1){
+            state_machine = 2;
+        }else{
+            state_machine = 0;
+        }
+
+    }else if(strcmp(event_read, "different") == 0){ // event_read == 'different', state_machine is 1
+        ESP_LOGI(TAG, "Event to be updated is different that the server is waiting, so will be send again!");
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+    }else{
+        ESP_LOGI(TAG, "Server is down, waiting to be up!");
         vTaskDelay(5000 / portTICK_PERIOD_MS);
+    }
+}
+
+static void stateMachineWork(){
+
+    switch(event_to_process){
+
+        case 1: // B1_SOURCE
+            // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
+            ESP_LOGI(TAG, "Event B1_SOURCE is processing!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+            // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
+            strcpy(event_to_update, "B1_SOURCE_END");
+            processed = 1;
+
+        break; 
+
+        case 2: // B1_PREPARATION_LINE_A
+
+        break;
+
+        case 3: // B1_PREPARATION_LINE_B
+
+        break;
+
+        case 4: // B1_LINE_A
+
+        break;
+
+        case 5: // B1_LINE_B
+
+        break;
+
+        case 6: // B1_POINT_OF_INTEREST_A
+
+        break;
+
+        case 7: // B1_POINT_OF_INTEREST_B
+
+        break;
+
+        case 8: // B1_SOURCE_A
+
+        break;
+
+        case 9: // B1_SOURCE_B
+
+        break;
+
+        case 10: // B1_STOP
+
+        break;
+
+        case 11: // B1_SUPPORT
+
+        break;
+
+        case 12: // B1_MAINTENANCE
+
+        break;
     }
 }
 
@@ -242,13 +319,13 @@ static void http_get_task(void *pvParameters)
 
             set_timeout(s);
             readHttpResponse(s); // event_read will be updated
-            stateMachineWork(); // State machine will work
+            stateMachineControl(); // State machine will work
 
-        }else if(state_machine == 1){
+        }else if(state_machine == 1){ // Confirm controllable events
 
             char aux[200] = "";
             strcat(aux, request2);
-            strcat(aux, event_read);
+            strcat(aux, event_to_update);
             strcat(aux, req_patter);
 
             // Send a request to update an event
@@ -261,15 +338,18 @@ static void http_get_task(void *pvParameters)
 
             set_timeout(s);
             readHttpResponse(s); // event_read will be updated
+            stateMachineControl();
 
-            state_machine = 0;
+        }else{ // will process and update an uncontrollable event
 
-        }else{ // state_machine == 2 Will end the production of 'x' parts
+            if(processed == 0){
+                stateMachineWork();
+            }
             
-            char aux[200] = "";
 
-            strcat(aux, request3);
-            strcat(aux, event_read);
+            char aux[200] = "";
+            strcat(aux, request2);
+            strcat(aux, event_to_update);
             strcat(aux, req_patter);
 
             // Send a request to update an event
@@ -282,8 +362,8 @@ static void http_get_task(void *pvParameters)
 
             set_timeout(s);
             readHttpResponse(s); // event_read will be updated
+            stateMachineControl();
 
-            state_machine = 0;
         }
 
         close(s);

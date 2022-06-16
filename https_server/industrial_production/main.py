@@ -39,8 +39,8 @@ def start_production(production: current_production):
     current_production_dict["production_date"] = current_date
     current_production_dict["total_produced"] = production.pc_to_produce
     # current_production_dict["event_list"] = list_of_events
-    current_production_dict["event_list"] = ["B1_SOURCE", "b", "c"]
-    current_production_dict["final_event_list"] = ["aa", "b", "c"]
+    current_production_dict["event_list"] = ["B1_SOURCE", "B1_SOURCE_END"]
+    current_production_dict["final_event_list"] = ["B1_SOURCE", "B1_SOURCE_END"]
     current_production_dict["machine_list"] = production.machine_list
     current_production_dict["status"] = "started"
     mutex.release()
@@ -72,8 +72,21 @@ def update_event_list_controllable(event: str):
 
         del current_production_dict["event_list"][0]
 
-        mutex.release()
+        if current_production_dict["event_list"] == []:
 
+            current_production_dict["status"] = "finished"
+            end = time.time()
+
+            current_production_dict["total_time"] = int(
+                end - current_production_dict["start_time"]
+            )
+
+            insert_into_database()  # Inserir dados da produção atual
+            mutex.release()
+
+            return {"message": "finished"}  # Lista finalizada com sucesso
+
+        mutex.release()
         return {"message": "updated"}  # Lista atualizada com sucesso
     else:
         mutex.release()
