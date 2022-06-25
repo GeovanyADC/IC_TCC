@@ -39,12 +39,13 @@
 static const char *TAG = "example";
 char event_read[30] = "";
 char event_to_update[30] = "";
-int event_to_process = -1;
+int event_to_process = -1; // Is used to set wich case will be processed
 char request2[25] = "PUT /confirm_event?event=";
 
 /* State machine representation:
     0 - waiting for an event
-    1 - will update an event
+    1 - will update a controllable event
+    2 - process and update an uncontrollable event
 */
 int state_machine = 0;
 int processed = 0;
@@ -145,59 +146,60 @@ static void readHttpResponse(int s){
     
 }
 
+static void confirmEventControl(int state, int event_case, int process){
+    ESP_LOGI(TAG, "The event will be confirmed!");
+    state_machine = state;            // Confirm event
+    event_to_process = event_case;    // Switch Case
+    processed = process;              // Bool 
+}
+
 static void stateMachineControl(){
 
-    if(strcmp(event_read, "B1_SOURCE") == 0){
+    if(strcmp(event_read, "B1_RESOURCE") == 0){
 
         // CONFIRM EVENT GOT
-        ESP_LOGI(TAG, "The event will be confirmed!");
-        strcpy(event_to_update, "B1_SOURCE");
-        state_machine = 1;
-        event_to_process = 1;
-        processed = 0;
+        strcpy(event_to_update, "B1_RESOURCE");
+        confirmEventControl( 1, 1, 0);
 
     }else if(strcmp(event_read, "B1_PREPARATION_LINE_A") == 0){
 
-        state_machine = 1;
-        event_to_process = 2;
+        strcpy(event_to_update, "B1_PREPARATION_LINE_A");
+        confirmEventControl( 1, 2, 0);
+
     }else if(strcmp(event_read, "B1_PREPARATION_LINE_B") == 0){
         
-        event_to_process = 3;
+        strcpy(event_to_update, "B1_PREPARATION_LINE_B");
+        confirmEventControl( 1, 3, 0);
+
     }else if(strcmp(event_read, "B1_LINE_A") == 0){
- 
-        // EXECUTE SOME MOVIMENTS
-
-        // START NON-MODELED EVENTS
-        int sequence_triggered = 0; // Sequence to be triggered that is not modeled
-
-        // nonModeledEvents(sequence_triggered);
-
-        // SEND THE END'S EVENT UNCONTROLLABLE
+        
+        strcpy(event_to_update, "B1_LINE_A");
+        confirmEventControl( 1, 4, 0);
 
     }else if(strcmp(event_read, "B1_LINE_B") == 0){
         
+        strcpy(event_to_update, "B1_LINE_B");
+        confirmEventControl( 1, 5, 0);
 
-    }else if(strcmp(event_read, "B1_POINT_OF_INTEREST_A") == 0){
+    }else if(strcmp(event_read, "B1_RESOURCE_A") == 0){
         
+        strcpy(event_to_update, "B1_RESOURCE_A");
+        confirmEventControl( 1, 6, 0);
 
-    }else if(strcmp(event_read, "B1_POINT_OF_INTEREST_B") == 0){
+    }else if(strcmp(event_read, "B1_RESOURCE_B") == 0){
         
-
-    }else if(strcmp(event_read, "B1_SOURCE_A") == 0){
-        
-
-    }else if(strcmp(event_read, "B1_SOURCE_B") == 0){
-        
+        strcpy(event_to_update, "B1_RESOURCE_B");
+        confirmEventControl( 1, 7, 0);
 
     }else if(strcmp(event_read, "B1_STOP") == 0){
         
+        strcpy(event_to_update, "B1_STOP");
+        confirmEventControl( 1, 8, 0);
 
-    }else if(strcmp(event_read, "B1_SUPPORT") == 0){
-        
+    }else if(strcmp(event_read, "B1_SUPPORT") == 0){        
 
-    }else if(strcmp(event_read, "B1_MAINTENANCE") == 0){
-        
-
+        strcpy(event_to_update, "B1_SUPPORT");
+        confirmEventControl( 1, 9, 0);
     
     }else if(strcmp(event_read, "stopped") == 0){ // state_machine is 0 always that the return is 'stopped'
         ESP_LOGI(TAG, "Production has not started, after 3 seconds a event will be get again!");
@@ -230,58 +232,113 @@ static void stateMachineWork(){
 
     switch(event_to_process){
 
-        case 1: // B1_SOURCE
+        case 1: // B1_RESOURCE
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
             ESP_LOGI(TAG, "Event B1_SOURCE is processing!");
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
-            strcpy(event_to_update, "B1_SOURCE_END");
+            strcpy(event_to_update, "B1_RESOURCE_END");
             processed = 1;
-
         break; 
 
         case 2: // B1_PREPARATION_LINE_A
+            // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
+            ESP_LOGI(TAG, "Event B1_PREPARATION_LINE_A is processing!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
 
+            ESP_LOGI(TAG, "Events non-modeled are processing!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+            // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
+            strcpy(event_to_update, "B1_PREPARATION_LINE_A_END");
+            processed = 1;
         break;
 
         case 3: // B1_PREPARATION_LINE_B
+            // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
+            ESP_LOGI(TAG, "Event B1_PREPARATION_LINE_B is processing!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+            ESP_LOGI(TAG, "Events non-modeled are processing!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+            // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
+            strcpy(event_to_update, "B1_PREPARATION_LINE_B_END");
+            processed = 1;
 
         break;
 
         case 4: // B1_LINE_A
+            // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
+            ESP_LOGI(TAG, "Event B1_LINE_A is processing!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
 
+            ESP_LOGI(TAG, "Events non-modeled are processing!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+            // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
+            strcpy(event_to_update, "B1_LINE_A_END"); 
+            processed = 1;
         break;
 
         case 5: // B1_LINE_B
+            // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
+            ESP_LOGI(TAG, "Event B1_LINE_B is processing!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+            ESP_LOGI(TAG, "Events non-modeled are processing!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+            // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
+            strcpy(event_to_update, "B1_LINE_B_END"); 
+            processed = 1;
+        break;
+
+        case 6: // B1_RESOURCE_A
+            // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
+            ESP_LOGI(TAG, "Event B1_RESOURCE_A is processing!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+            // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
+            strcpy(event_to_update, "B1_RESOURCE_END"); 
+            processed = 1;
 
         break;
 
-        case 6: // B1_POINT_OF_INTEREST_A
+        case 7: // B1_RESOURCE_B
+            // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
+            ESP_LOGI(TAG, "Event B1_RESOURCE_B is processing!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+            // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
+            strcpy(event_to_update, "B1_RESOURCE_END"); 
+            processed = 1;
 
         break;
 
-        case 7: // B1_POINT_OF_INTEREST_B
+        case 8: // B1_STOP
+            // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
+            ESP_LOGI(TAG, "Event B1_STOP is processing!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+            // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
+            strcpy(event_to_update, "B1_STOP_END"); 
+            processed = 1;
 
         break;
 
-        case 8: // B1_SOURCE_A
+        case 9: // B1_SUPPORT
+            // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
+            ESP_LOGI(TAG, "Event B1_SUPPORT is processing!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
 
-        break;
+            ESP_LOGI(TAG, "Events non-modeled are processing!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
 
-        case 9: // B1_SOURCE_B
-
-        break;
-
-        case 10: // B1_STOP
-
-        break;
-
-        case 11: // B1_SUPPORT
-
-        break;
-
-        case 12: // B1_MAINTENANCE
+            // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
+            strcpy(event_to_update, "B1_SUPPORT_END"); 
+            processed = 1;
 
         break;
     }
@@ -345,7 +402,6 @@ static void http_get_task(void *pvParameters)
             if(processed == 0){
                 stateMachineWork();
             }
-            
 
             char aux[200] = "";
             strcat(aux, request2);
