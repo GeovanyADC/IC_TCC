@@ -1,7 +1,7 @@
 """
     COMANDOS PARA ACESSAR A API LOCALMENTE
     - fazer o encaminhamento de porta desta porta para a porta que seu aplicativo está escutando no WSL
-    - netsh interface portproxy add v4tov4 listenport=8000 listenaddress=0.0.0.0 connectport=8000 connectaddress=172.30.42.187
+    - netsh interface portproxy add v4tov4 listenport=8000 listenaddress=0.0.0.0 connectport=8000 connectaddress=172.20.19.198
     - connectaddress=(172.30.65.138) IP do WSL
     - Adicionar uma regra de entrada no firewall do windows
     - Manualmente ou com o código:

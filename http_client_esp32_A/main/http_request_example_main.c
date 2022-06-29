@@ -15,6 +15,7 @@
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "protocol_examples_common.h"
+#include "driver/gpio.h"
 
 #include "lwip/err.h"
 #include "lwip/sockets.h"
@@ -235,7 +236,10 @@ static void stateMachineWork(){
         case 1: // B1_RESOURCE
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
             ESP_LOGI(TAG, "Event B1_SOURCE is processing!");
+            gpio_set_level(32, 0);
+
             vTaskDelay(5000 / portTICK_PERIOD_MS);
+            gpio_set_level(33, 1);
 
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
             strcpy(event_to_update, "B1_RESOURCE_END");
@@ -245,10 +249,12 @@ static void stateMachineWork(){
         case 2: // B1_PREPARATION_LINE_A
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
             ESP_LOGI(TAG, "Event B1_PREPARATION_LINE_A is processing!");
-            vTaskDelay(5000 / portTICK_PERIOD_MS);
 
+            gpio_set_level(25, 1);
+            
             ESP_LOGI(TAG, "Events non-modeled are processing!");
-            vTaskDelay(5000 / portTICK_PERIOD_MS);
+            vTaskDelay(8000 / portTICK_PERIOD_MS);
+            gpio_set_level(25, 0);
 
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
             strcpy(event_to_update, "B1_PREPARATION_LINE_A_END");
@@ -258,10 +264,12 @@ static void stateMachineWork(){
         case 3: // B1_PREPARATION_LINE_B
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
             ESP_LOGI(TAG, "Event B1_PREPARATION_LINE_B is processing!");
-            vTaskDelay(5000 / portTICK_PERIOD_MS);
+            
+            gpio_set_level(25, 1);
 
             ESP_LOGI(TAG, "Events non-modeled are processing!");
-            vTaskDelay(5000 / portTICK_PERIOD_MS);
+            vTaskDelay(8000 / portTICK_PERIOD_MS);
+            gpio_set_level(25, 0);
 
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
             strcpy(event_to_update, "B1_PREPARATION_LINE_B_END");
@@ -272,11 +280,15 @@ static void stateMachineWork(){
         case 4: // B1_LINE_A
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
             ESP_LOGI(TAG, "Event B1_LINE_A is processing!");
+            gpio_set_level(33, 0);
+            vTaskDelay(5000 / portTICK_PERIOD_MS); // Indo para a esteira
+
+            ESP_LOGI(TAG, "Events non-modeled are processing!"); // Chegou na esteira
+            gpio_set_level(33, 1);
+            gpio_set_level(25, 1);
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
-            ESP_LOGI(TAG, "Events non-modeled are processing!");
-            vTaskDelay(5000 / portTICK_PERIOD_MS);
-
+            gpio_set_level(25, 0);
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
             strcpy(event_to_update, "B1_LINE_A_END"); 
             processed = 1;
@@ -285,18 +297,22 @@ static void stateMachineWork(){
         case 5: // B1_LINE_B
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
             ESP_LOGI(TAG, "Event B1_LINE_B is processing!");
+            gpio_set_level(33, 0);
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
             ESP_LOGI(TAG, "Events non-modeled are processing!");
+            gpio_set_level(33, 1);
+            gpio_set_level(25, 1);
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
-            // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
             strcpy(event_to_update, "B1_LINE_B_END"); 
             processed = 1;
         break;
 
         case 6: // B1_RESOURCE_A
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
+            gpio_set_level(33, 0);
+            gpio_set_level(25, 0);
             ESP_LOGI(TAG, "Event B1_RESOURCE_A is processing!");
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
@@ -308,6 +324,8 @@ static void stateMachineWork(){
 
         case 7: // B1_RESOURCE_B
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
+            gpio_set_level(33, 0);
+            gpio_set_level(25, 0);
             ESP_LOGI(TAG, "Event B1_RESOURCE_B is processing!");
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
@@ -319,25 +337,35 @@ static void stateMachineWork(){
 
         case 8: // B1_STOP
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
+            gpio_set_level(33, 0);
+            gpio_set_level(25, 0);
             ESP_LOGI(TAG, "Event B1_STOP is processing!");
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
             strcpy(event_to_update, "B1_STOP_END"); 
+            gpio_set_level(32, 1);
+ 
             processed = 1;
 
         break;
 
         case 9: // B1_SUPPORT
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
+            gpio_set_level(33, 0);
+            gpio_set_level(25, 0);
             ESP_LOGI(TAG, "Event B1_SUPPORT is processing!");
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
             ESP_LOGI(TAG, "Events non-modeled are processing!");
+            gpio_set_level(25, 1);
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
             strcpy(event_to_update, "B1_SUPPORT_END"); 
+            gpio_set_level(25, 0);
+            gpio_set_level(32, 1);
+
             processed = 1;
 
         break;
@@ -432,6 +460,22 @@ static void http_get_task(void *pvParameters)
     }
 }
 
+static void configure_led(void)
+{
+    ESP_LOGI(TAG, "Example configured to blink GPIO LED!");
+    gpio_reset_pin(26);
+    gpio_reset_pin(32);
+    gpio_reset_pin(33);
+    gpio_reset_pin(25);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(26, GPIO_MODE_OUTPUT);
+    gpio_set_direction(32, GPIO_MODE_OUTPUT);
+    gpio_set_direction(33, GPIO_MODE_OUTPUT);
+    gpio_set_direction(25, GPIO_MODE_OUTPUT);
+
+    gpio_set_level(32, 1);
+}
+
 void app_main(void)
 {
     ESP_ERROR_CHECK( nvs_flash_init() );
@@ -443,6 +487,8 @@ void app_main(void)
      * examples/protocols/README.md for more information about this function.
      */
     ESP_ERROR_CHECK(example_connect());
+
+    configure_led();
 
     xTaskCreate(&http_get_task, "http_get_task", 4096, NULL, 5, NULL);
 }
