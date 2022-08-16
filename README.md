@@ -1,4 +1,4 @@
-# **ARQUITETURA PARA CONTROLE SUPERVISÓRIO DESCENTRALIZADO**
+# **Arquitetura para controle supervisório descentralizado**
 
 ## **Introdução**
 
@@ -9,7 +9,7 @@ A arquitetura é dividida em dois componentes principais. O servidor, que é res
 Esta divisão pode ser observada na figura abaixo, que é o caso prático base desta pesquisa:
 
 <div align="center">
-<img src="./figuras/layout.jpg">
+<img src="./figuras/layout.jpg" width="400" height="200">
 
 Fig1. Caso prático base da pesquisa.
 </div>
@@ -17,7 +17,7 @@ Fig1. Caso prático base da pesquisa.
 Apesar do caso possuir uma série de equipamentos, a pesquisa teve foco na arquitetura, isto quer dizer que esse ambiente foi apenas simulado. E o resultado visual é mostrado a seguir.
 
 <div align="center">
-<img src="./figuras/estadoslocais.jpg">
+<img src="./figuras/estadoslocais.jpg" width="400" height="200">
 
 Fig2. Simulação do caso prático apresentado.
 </div>
