@@ -36,7 +36,7 @@ Assim sendo, para replicar esta implementação o usuário deve possuir os segui
 
 ## **Passos para a implementação**
 
-### **Servidor**
+### **SERVIDOR**
 
 Para replicar o servidor, os seguintes passos devem ser utilizados:
 
