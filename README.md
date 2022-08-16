@@ -17,7 +17,7 @@ Fig1. Caso prático base da pesquisa.
 Apesar do caso possuir uma série de equipamentos, a pesquisa teve foco na arquitetura, isto quer dizer que esse ambiente foi apenas simulado. E o resultado visual é mostrado a seguir.
 
 <div align="center">
-<img src="./figuras/estadoslocais.jpg" width="400" height="250">
+<img src="./figuras/estadoslocais.jpg" width="400" height="350">
 
 Fig2. Simulação do caso prático apresentado.
 </div>
