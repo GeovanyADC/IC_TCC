@@ -73,8 +73,6 @@ def update_event_list_controllable(event: str):
 
     mutex.acquire()
 
-    print("eveto--", event)
-
     event_from_list = current_production_dict["event_list"][0]
 
     if event == event_from_list:
