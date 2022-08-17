@@ -9,38 +9,42 @@ app = FastAPI()
 
 # Request body type
 class current_production(BaseModel):
-    pc_to_produce: int
+    pc_to_produce_a: int
+    pc_to_produce_b: int
     machine_list: list
-
+ 
 current_production_dict = {
     "start_time": None,
     "total_time": None,
     "production_date": None,
-    "total_produced": None,
+    "total_produced_a": None,
+    "total_produced_b": None,
     "event_list": None,
     "machine_list": None,
     "status": "stopped",
     "final_event_list": None,
 }
 
-mutex = threading.Lock()  # Mutex para proteger o dict de leituras concorrentes
+mutex = threading.Lock()  # Mutex to protect dict from concurrent reads
 
-# Rota1: rota de inicialização de produção.
+# Route1: Production startup route
 @app.post("/start_production")
 def start_production(production: current_production):
 
-    start = time.time()  # Tempo inicial da produção de 'x' peças
-    current_date = date.today()  # Data atual
+    start = time.time()  # Initial production time of 'x' parts
+    current_date = date.today()
 
     mutex.acquire()
 
-    # list_of_events = file.heuristica(production.pc_to_produce)
+    # It will get the list from other scientific research
+    # list_of_events = file.heuristica(production.pc_to_produce_A, production.pc_to_produce_B)
     current_production_dict["start_time"] = start
     current_production_dict["production_date"] = current_date
-    current_production_dict["total_produced"] = production.pc_to_produce
+    current_production_dict["total_produced_a"] = production.pc_to_produce_a
+    current_production_dict["total_produced_b"] = production.pc_to_produce_b
     # current_production_dict["event_list"] = list_of_events
 
-    # Producing 1
+    # Production 1 
     current_production_dict["event_list"] = ["B1_RESOURCE", "B1_RESOURCE_END", "B1_PREPARATION_LINE_A", 
     "B1_PREPARATION_LINE_A_END", "B1_LINE_A", "B1_LINE_A_END", "B1_STOP", "B1_STOP_END"]                                               
     current_production_dict["final_event_list"] = ["B1_RESOURCE", "B1_RESOURCE_END", "B1_PREPARATION_LINE_A", 
@@ -86,16 +90,16 @@ def update_event_list_controllable(event: str):
                 end - current_production_dict["start_time"]
             )
 
-            insert_into_database()  # Inserir dados da produção atual
+            insert_into_database()  # Insert current production data
             mutex.release()
 
-            return {"message": "finished"}  # Lista finalizada com sucesso
+            return {"message": "finished"}  # List successfully completed
 
         mutex.release()
-        return {"message": "updated"}  # Lista atualizada com sucesso
+        return {"message": "updated"}  # List updated successfully
     else:
         mutex.release()
-        return {"message": "different"}  # Evento diferente do início da fila
+        return {"message": "different"}  # Event other than head of queue
 
 
 @app.put("/end_event")
@@ -120,16 +124,16 @@ def update_event_list_uncontrollable(event: str):
                     end - current_production_dict["start_time"]
                 )
 
-                insert_into_database()  # Inserir dados da produção atual
+                insert_into_database()
 
             mutex.release()
-            return {"message": "finished"}  # Lista atualizada com sucesso
+            return {"message": "finished"}
         else:
             mutex.release()
-            return {"message": "different"}  # Evento diferente do início da fila
+            return {"message": "different"}
     else:
         mutex.release()
-        return {"message": "finished"}  # Tentativa falha de atualização
+        return {"message": "finished"}
 
 
 def insert_into_database():
@@ -159,7 +163,8 @@ def insert_into_database():
                 user_id serial primary key,
                 total_time varchar(20) not null,
                 production_date date not null,
-                total_produced integer not null,
+                total_produced_a integer not null,
+                total_produced_b integer not null,
                 event_list text not null,
                 machine_list text not null
             )
@@ -169,20 +174,21 @@ def insert_into_database():
     except:
         print("Table already exists")
 
-    # Convertendo as duas listas em strings
+    # Converting the two lists to strings
     a = (
         " ".join(current_production_dict["final_event_list"]),
-    )  # Transforma a lista em string
+    )
     b = " ".join(current_production_dict["machine_list"])
 
     cursor_insert_table.execute(
         """
-            insert into production (total_time, production_date, total_produced, event_list, machine_list)
-            values({0}, cast('{1}' as date), {2}, '{3}', '{4}')
+            insert into production (total_time, production_date, total_produced_a, total_produced_b, event_list, machine_list)
+            values({0}, cast('{1}' as date), {2}, '{3}', '{4}', '{5}')
         """.format(
             current_production_dict["total_time"],
             current_production_dict["production_date"],
-            current_production_dict["total_produced"],
+            current_production_dict["total_produced_a"],
+            current_production_dict["total_produced_b"],
             a[0],
             b,
         )
