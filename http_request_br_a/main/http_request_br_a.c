@@ -118,15 +118,15 @@ static void readHttpResponse(int s){
     memset(event_read,0,sizeof(event_read));
 
     do {
-            bzero(recv_buf, sizeof(recv_buf)); //zera a região de memória para gravar uma nova mensagem
-            r = read(s, recv_buf, sizeof(recv_buf)-1); // r é o número de bytes lido
+            bzero(recv_buf, sizeof(recv_buf)); //resets the memory region to record a new message
+            r = read(s, recv_buf, sizeof(recv_buf)-1); // r is the number of bytes read
             for(int i = 0; i < r; i++) {
                 if( recv_buf[i] > 31){
                     a = (char)recv_buf[i];
                     if( a == '{' ){
                         firt_json_element = cont_num_characters;
                     }
-                    if( (firt_json_element > 0) && (cont_num_characters > (firt_json_element + 11)) && (a != '"') && (a !='}') ){ // Já encontrou o caracter '{'
+                    if( (firt_json_element > 0) && (cont_num_characters > (firt_json_element + 11)) && (a != '"') && (a !='}') ){ // Already found the character '{'
                         strncat(event_read, &a , 1);
                     }
                 }
@@ -272,9 +272,9 @@ static void stateMachineWork(){
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
             ESP_LOGI(TAG, "Event B1_LINE_A is processing!");
             gpio_set_level(33, 0);
-            vTaskDelay(5000 / portTICK_PERIOD_MS); // Indo para a esteira
+            vTaskDelay(5000 / portTICK_PERIOD_MS); // Going to the preparation
 
-            ESP_LOGI(TAG, "Events non-modeled are processing!"); // Chegou na esteira
+            ESP_LOGI(TAG, "Events non-modeled are processing!"); // Arrived on the preparation
             gpio_set_level(33, 1);
             gpio_set_level(25, 1);
             vTaskDelay(5000 / portTICK_PERIOD_MS);
