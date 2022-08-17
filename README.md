@@ -81,7 +81,7 @@ As etapas a seguir devem ser efetuadas para a implementação da aplicação no 
 
 Os passos foram realizados no sistema operacional Windows, e fazendo uso do Visual Studio Code (VSCode). Assim sendo, recomenda-se:
 
-1. Ter uma cópia deste projeto em um diretório do Windows e entrar no diretório do braço robótico A ou B.
+1. Ter uma cópia deste projeto no diretório do esp instalado do Windows (C:\Users\yourUser\esp\esp-idf\examples) e entrar no diretório do braço robótico A ou B.
 
 2. Acesse o terminal do Windows neste diretório.
 

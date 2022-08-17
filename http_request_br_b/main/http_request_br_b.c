@@ -24,7 +24,7 @@
 #include "lwip/dns.h"
 
 
-/* Constants that are not configurable in menuconfig */
+/* Constants that aren't configurable in menuconfig */
 #define WEB_SERVER "192.168.0.71"
 #define WEB_PORT "8000"
 
@@ -118,7 +118,7 @@ static void readHttpResponse(int s){
     memset(event_read,0,sizeof(event_read));
 
     do {
-            bzero(recv_buf, sizeof(recv_buf)); //resets the memory region to record a new message
+            bzero(recv_buf, sizeof(recv_buf)); // Resets the memory region to record a new message
             r = read(s, recv_buf, sizeof(recv_buf)-1); // r is the number of bytes read
             for(int i = 0; i < r; i++) {
                 if( recv_buf[i] > 31){
@@ -147,50 +147,50 @@ static void confirmEventControl(int state, int event_case, int process){
 
 static void stateMachineControl(){
 
-    if(strcmp(event_read, "B1_PRE") == 0){
+    if(strcmp(event_read, "B2_PRE") == 0){
 
         // CONFIRM EVENT GOT
-        strcpy(event_to_update, "B1_PRE");
+        strcpy(event_to_update, "B2_PRE");
         confirmEventControl( 1, 1, 0);
 
-    }else if(strcmp(event_read, "B1_PREPARATION_A") == 0){
+    }else if(strcmp(event_read, "B2_PREPARATION_A") == 0){
 
-        strcpy(event_to_update, "B1_PREPARATION_A");
+        strcpy(event_to_update, "B2_PREPARATION_A");
         confirmEventControl( 1, 2, 0);
 
-    }else if(strcmp(event_read, "B1_PREPARATION_B") == 0){
+    }else if(strcmp(event_read, "B2_PREPARATION_B") == 0){
         
-        strcpy(event_to_update, "B1_PREPARATION_B");
+        strcpy(event_to_update, "B2_PREPARATION_B");
         confirmEventControl( 1, 3, 0);
 
-    }else if(strcmp(event_read, "B1_FIN_A") == 0){
+    }else if(strcmp(event_read, "B2_FIN_A") == 0){
         
-        strcpy(event_to_update, "B1_FIN_A");
+        strcpy(event_to_update, "B2_FIN_A");
         confirmEventControl( 1, 4, 0);
 
-    }else if(strcmp(event_read, "B1_FIN_B") == 0){
+    }else if(strcmp(event_read, "B2_FIN_B") == 0){
         
-        strcpy(event_to_update, "B1_FIN_B");
+        strcpy(event_to_update, "B2_FIN_B");
         confirmEventControl( 1, 5, 0);
 
-    }else if(strcmp(event_read, "B1_PRE_A") == 0){
+    }else if(strcmp(event_read, "B2_PRE_A") == 0){
         
-        strcpy(event_to_update, "B1_PRE_A");
+        strcpy(event_to_update, "B2_PRE_A");
         confirmEventControl( 1, 6, 0);
 
-    }else if(strcmp(event_read, "B1_PRE_B") == 0){
+    }else if(strcmp(event_read, "B2_PRE_B") == 0){
         
-        strcpy(event_to_update, "B1_PRE_B");
+        strcpy(event_to_update, "B2_PRE_B");
         confirmEventControl( 1, 7, 0);
 
-    }else if(strcmp(event_read, "B1_STOP") == 0){
+    }else if(strcmp(event_read, "B2_STOP") == 0){
         
-        strcpy(event_to_update, "B1_STOP");
+        strcpy(event_to_update, "B2_STOP");
         confirmEventControl( 1, 8, 0);
 
-    }else if(strcmp(event_read, "B1_SUPPORT") == 0){        
+    }else if(strcmp(event_read, "B2_SUPPORT") == 0){        
 
-        strcpy(event_to_update, "B1_SUPPORT");
+        strcpy(event_to_update, "B2_SUPPORT");
         confirmEventControl( 1, 9, 0);
     
     }else if(strcmp(event_read, "stopped") == 0){ // state_machine is 0 always that the return is 'stopped'
@@ -224,22 +224,22 @@ static void stateMachineWork(){
 
     switch(event_to_process){
 
-        case 1: // B1_PRE
+        case 1: // B2_PRE
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
-            ESP_LOGI(TAG, "Event B1_PRE is processing!");
+            ESP_LOGI(TAG, "Event B2_PRE is processing!");
             gpio_set_level(32, 0);
 
             vTaskDelay(5000 / portTICK_PERIOD_MS);
             gpio_set_level(33, 1);
 
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
-            strcpy(event_to_update, "B1_PRE_END");
+            strcpy(event_to_update, "B2_PRE_END");
             processed = 1;
         break; 
 
-        case 2: // B1_PREPARATION_A
+        case 2: // B2_PREPARATION_A
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
-            ESP_LOGI(TAG, "Event B1_PREPARATION_A is processing!");
+            ESP_LOGI(TAG, "Event B2_PREPARATION_A is processing!");
 
             gpio_set_level(25, 1);
             
@@ -248,13 +248,13 @@ static void stateMachineWork(){
             gpio_set_level(25, 0);
 
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
-            strcpy(event_to_update, "B1_POINT_OF_INTEREST_PRE_A");
+            strcpy(event_to_update, "B2_POINT_OF_INTEREST_PRE_A");
             processed = 1;
         break;
 
-        case 3: // B1_PREPARATION_B
+        case 3: // B2_PREPARATION_B
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
-            ESP_LOGI(TAG, "Event B1_PREPARATION_B is processing!");
+            ESP_LOGI(TAG, "Event B2_PREPARATION_B is processing!");
             
             gpio_set_level(25, 1);
 
@@ -263,31 +263,31 @@ static void stateMachineWork(){
             gpio_set_level(25, 0);
 
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
-            strcpy(event_to_update, "B1_POINT_OF_INTEREST_PRE_B");
+            strcpy(event_to_update, "B2_POINT_OF_INTEREST_PRE_B");
             processed = 1;
 
         break;
 
-        case 4: // B1_FIN_A
+        case 4: // B2_FIN_A
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
-            ESP_LOGI(TAG, "Event B1_FIN_A is processing!");
+            ESP_LOGI(TAG, "Event B2_FIN_A is processing!");
             gpio_set_level(33, 0);
-            vTaskDelay(5000 / portTICK_PERIOD_MS); // Going to the preparation
+            vTaskDelay(5000 / portTICK_PERIOD_MS); // Indo para a esteira
 
-            ESP_LOGI(TAG, "Events non-modeled are processing!"); // Arrived on the preparation
+            ESP_LOGI(TAG, "Events non-modeled are processing!"); // Chegou na esteira
             gpio_set_level(33, 1);
             gpio_set_level(25, 1);
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
             gpio_set_level(25, 0);
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
-            strcpy(event_to_update, "B1_FIN_A_END"); 
+            strcpy(event_to_update, "B2_FIN_A_END"); 
             processed = 1;
         break;
 
-        case 5: // B1_FIN_B
+        case 5: // B2_FIN_B
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
-            ESP_LOGI(TAG, "Event B1_FIN_B is processing!");
+            ESP_LOGI(TAG, "Event B2_FIN_B is processing!");
             gpio_set_level(33, 0);
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
@@ -296,56 +296,56 @@ static void stateMachineWork(){
             gpio_set_level(25, 1);
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
-            strcpy(event_to_update, "B1_FIN_B_END"); 
+            strcpy(event_to_update, "B2_FIN_B_END"); 
             processed = 1;
         break;
 
-        case 6: // B1_PRE_A
+        case 6: // B2_PRE_A
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
             gpio_set_level(33, 0);
             gpio_set_level(25, 0);
-            ESP_LOGI(TAG, "Event B1_PRE_A is processing!");
+            ESP_LOGI(TAG, "Event B2_PRE_A is processing!");
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
-            strcpy(event_to_update, "B1_PRE_END"); 
-            processed = 1;
-
-        break;
-
-        case 7: // B1_PRE_B
-            // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
-            gpio_set_level(33, 0);
-            gpio_set_level(25, 0);
-            ESP_LOGI(TAG, "Event B1_PRE_B is processing!");
-            vTaskDelay(5000 / portTICK_PERIOD_MS);
-
-            // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
-            strcpy(event_to_update, "B1_PRE_END"); 
+            strcpy(event_to_update, "B2_PRE_END"); 
             processed = 1;
 
         break;
 
-        case 8: // B1_STOP
+        case 7: // B2_PRE_B
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
             gpio_set_level(33, 0);
             gpio_set_level(25, 0);
-            ESP_LOGI(TAG, "Event B1_STOP is processing!");
+            ESP_LOGI(TAG, "Event B2_PRE_B is processing!");
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
-            strcpy(event_to_update, "B1_STOP_END"); 
+            strcpy(event_to_update, "B2_PRE_END"); 
+            processed = 1;
+
+        break;
+
+        case 8: // B2_STOP
+            // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
+            gpio_set_level(33, 0);
+            gpio_set_level(25, 0);
+            ESP_LOGI(TAG, "Event B2_STOP is processing!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+            // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
+            strcpy(event_to_update, "B2_STOP_END"); 
             gpio_set_level(32, 1);
  
             processed = 1;
 
         break;
 
-        case 9: // B1_SUPPORT
+        case 9: // B2_SUPPORT
             // EXECUTE SOME MOVIMENTS AND SEND AN EVENT
             gpio_set_level(33, 0);
             gpio_set_level(25, 0);
-            ESP_LOGI(TAG, "Event B1_SUPPORT is processing!");
+            ESP_LOGI(TAG, "Event B2_SUPPORT is processing!");
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
             ESP_LOGI(TAG, "Events non-modeled are processing!");
@@ -353,7 +353,7 @@ static void stateMachineWork(){
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
-            strcpy(event_to_update, "B1_SUPPORT_END"); 
+            strcpy(event_to_update, "B2_SUPPORT_END"); 
             gpio_set_level(25, 0);
             gpio_set_level(32, 1);
 
