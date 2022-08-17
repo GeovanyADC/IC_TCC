@@ -45,10 +45,10 @@ def start_production(production: current_production):
     # current_production_dict["event_list"] = list_of_events
 
     # Production 1 
-    current_production_dict["event_list"] = ["B1_RESOURCE", "B1_RESOURCE_END", "B1_PREPARATION_LINE_A", 
-    "B1_PREPARATION_LINE_A_END", "B1_LINE_A", "B1_LINE_A_END", "B1_STOP", "B1_STOP_END"]                                               
-    current_production_dict["final_event_list"] = ["B1_RESOURCE", "B1_RESOURCE_END", "B1_PREPARATION_LINE_A", 
-    "B1_PREPARATION_LINE_A_END", "B1_LINE_A", "B1_LINE_A_END", "B1_STOP", "B1_STOP_END"]
+    current_production_dict["event_list"] = ["B1_PRE", "B1_PRE_END", "B2_PRE", "B2_PRE_END","B1_PREPARATION_A", 
+    "B1_POINT_OF_INTEREST_PRE_A", "B1_FIN_A", "B1_FIN_A_END", "B1_STOP", "B1_STOP_END"]                                               
+    current_production_dict["final_event_list"] = ["B1_PRE", "B1_PRE_END", "B2_PRE", "B2_PRE_END","B1_PREPARATION_A", 
+    "B1_POINT_OF_INTEREST_PRE_A", "B1_FIN_A", "B1_FIN_A_END", "B1_STOP", "B1_STOP_END"]
     
     current_production_dict["machine_list"] = production.machine_list
     current_production_dict["status"] = "started"
