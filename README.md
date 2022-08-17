@@ -91,7 +91,7 @@ Os passos foram realizados no sistema operacional Windows, e fazendo uso do Visu
 
 5. Instalar o driver para reconhecimento da porta no Windows. Conceitos relacionados podem ser encontrados em [Conceitos](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/establish-serial-connection.html), e o driver em [Driver](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers).
 
-6. Usar os comandos do ESP-IDF ou os ícones no VSCode que aparecem após a inicialização, seja para compilar ou efetuar a gravação no microcontrolador.
+6. Usar os comandos do ESP-IDF ou os ícones no VSCode que aparecem após a instalação, seja para compilar ou efetuar a gravação no microcontrolador.
 
 
 
