@@ -9,7 +9,7 @@ A arquitetura é dividida em dois componentes principais. O servidor, que é res
 Esta divisão pode ser observada na figura abaixo, que é o caso prático base desta pesquisa:
 
 <div align="center">
-<img src="./figuras/layout.jpg" width="450" height="250">
+<img src="./figuras/layout.png" width="240" height="140">
 
 Fig1. Caso prático base da pesquisa.
 </div>
