@@ -1,12 +1,10 @@
 FROM python:3.8.10
 
-WORKDIR /code
+COPY . /code/app
 
-COPY ./requirements.txt /code/requirements.txt
+WORKDIR /code/app
 
-RUN pip install -r /code/requirements.txt
-
-COPY ./ /code/app
+RUN pip install --no-cache-dir --upgrade -r /code/app/requirements.txt
 
 CMD ["python3", "server.py"]
 

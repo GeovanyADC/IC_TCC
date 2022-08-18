@@ -80,9 +80,9 @@ Para replicar o servidor com Docker, os seguintes passos devem ser utilizados:
 
 3. Entrar no diretório do projeto: **cd ./IC_TCC/http_server/**
 
-4. Criar a imagem: **docker build -t production-api-image .**
+4. Criar a imagem: **docker build -t production_api .**
 
-5. Iniciar o container: **docker run -d --name production-project -p 8000:8000 production-api-image**
+5. Iniciar o container: **docker run -d --name ind_prod -p 8000:8000 production_api**
 
 Já é possível inserir a rota **http[]()://localhost:8000/docs** no navegador para acessar a api interativa do Fast API e executar os testes.
 
