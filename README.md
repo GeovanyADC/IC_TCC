@@ -36,11 +36,11 @@ Assim sendo, para replicar esta implementação o usuário deve possuir os segui
 
 ## **Passos para a implementação**
 
-### **SERVIDOR**
+### **SERVIDOR SEM DOCKER**
 
 Para replicar o servidor, os seguintes passos devem ser utilizados:
 
-1. Instalar o python3 na máquina
+1. Instalar o **python3** na máquina
 
 2. Clonar o repositório: **git clone https[]()://github.com/GeovanyADC/IC_TCC.git**
 
@@ -70,6 +70,21 @@ Adicionar uma regra de entrada no firewall do windows, pode ser manualmente ou c
 
 É possível acessar a API de outro computador na rede local com o ipv4 do pc -> 192.168... (pode ser obtido com o comando **ipconfig** no terminal do Windows).
 
+### **SERVIDOR COM DOCKER**
+
+Para replicar o servidor com Docker, os seguintes passos devem ser utilizados:
+
+1. Instalar o **Docker** na máquina [Docker para Ubuntu](https://docs.docker.com/engine/install/ubuntu/).
+
+2. Clonar o repositório: **git clone https[]()://github.com/GeovanyADC/IC_TCC.git**
+
+3. Entrar no diretório do projeto: **cd ./IC_TCC/http_server/**
+
+4. Criar a imagem: **docker build -t production-api-image .**
+
+5. Iniciar o container: **docker run -d --name production-project -p 8000:8000 production-api-image**
+
+Já é possível inserir a rota **http[]()://localhost:8000/docs** no navegador para acessar a api interativa do Fast API e executar os testes.
 
 #### **Banco de dados**
 
