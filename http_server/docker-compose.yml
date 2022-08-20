@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+
+  postgres:
+      image: postgres:13
+      container_name: postgresqlDatabase
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: 5492200
+        POSTGRES_DB: postgres
+      restart: always
+      ports:
+        - 5432:5432
+  
+  server:
+      image: production_api
+      container_name: fastApiServer
+      restart: always
+      ports:
+        - 8000:80
+

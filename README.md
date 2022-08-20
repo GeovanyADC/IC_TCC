@@ -61,7 +61,7 @@ Já é possível inserir a rota **http[]()://localhost:8000/docs** no navegador 
 #### **Acesso local**
 
 Fazer o encaminhamento de porta:
-- netsh interface portproxy add v4tov4 listenport=8000 listenaddress=0.0.0.0 connectport=8000 connectaddress=172.20.19.198
+- netsh interface portproxy add v4tov4 listenport=8000 listenaddress=0.0.0.0 connectport=8000 connectaddress=172.21.68.115
 
 A opção connectaddress=(172.30.65.138) é o IP do WSL (pode ser recuperado com o comando: **ifconfing** no terminal do WSL)
 
@@ -85,6 +85,22 @@ Para replicar o servidor com Docker, os seguintes passos devem ser utilizados:
 5. Iniciar o container: **docker run -d --name ind_prod -p 8000:8000 production_api**
 
 Já é possível inserir a rota **http[]()://localhost:8000/docs** no navegador para acessar a api interativa do Fast API e executar os testes.
+
+### **SERVIDOR COM DOCKER-COMPOSE**
+
+O servidor em docker-compose não requer a instalação do postgresql na máquina, pois será iniciado como um container. Para replicar o servidor com docker-compose, os seguintes passos devem ser utilizados:
+
+1. Instalar o **Docker e docker-compose** na máquina.
+
+2. Clonar o repositório: **git clone https[]()://github.com/GeovanyADC/IC_TCC.git**
+
+3. Entrar no diretório do projeto: **cd ./IC_TCC/http_server/**
+
+4. Criar a imagem do servidor: **docker build -t production_api .**
+
+5. Iniciar o docker-compose, com o comando: **docker-compose up -d**
+
+Já é possível inserir a rota **http[]()://localhost:8000/docs** no navegador para acessar a api interativa do Fast API e executar os testes. Bem como acessar a porta **5432** pelo PgAdmin, por exemplo, para acessar o banco de dados, cujas credenciais estão no arquivo docker-compose.yml.
 
 #### **Banco de dados**
 
