@@ -58,6 +58,8 @@ Para replicar o servidor, os seguintes passos devem ser utilizados:
 
 Já é possível inserir a rota **http[]()://localhost:8000/docs** no navegador para acessar a api interativa do Fast API e executar os testes.
 
+Para funcionamento completo deve ser instalado o postgresql, instruções em _Banco de dados_.
+
 #### **Acesso local**
 
 Fazer o encaminhamento de porta:
@@ -85,6 +87,8 @@ Para replicar o servidor com Docker, os seguintes passos devem ser utilizados:
 5. Iniciar o container: **docker run -d --name ind_prod -p 8000:8000 production_api**
 
 Já é possível inserir a rota **http[]()://localhost:8000/docs** no navegador para acessar a api interativa do Fast API e executar os testes.
+
+Para funcionamento completo deve ser instalado o postgresql, instruções em _Banco de dados_.
 
 ### **SERVIDOR COM DOCKER-COMPOSE**
 
