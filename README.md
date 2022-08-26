@@ -1,5 +1,16 @@
 # **Arquitetura para controle supervisório descentralizado**
 
+**Índice**
+
+- [Introdução](#introdução)
+- [Equipamentos utilizados](#equipamentos-utilizados)
+- [Passos para a implementação](#passos-para-a-implementação)
+    - [SERVIDOR SEM DOCKER](#servidor-sem-docker)
+        - [Acesso local](#acesso-local)
+    - [SERVIDOR COM DOCKER](#servidor-com-docker)
+    - [SERVIDOR COM DOCKER-COMPOSE](#servidor-com-docker-compose)
+    - [MÓDULOS LOCAIS](#módulos-locais)
+
 ## **Introdução**
 
 Esta documentação tem o intuito de apresentar as tecnologias e equipamentos utilizados na implementação desta arquitetura. Bem como os passos necessários para qualquer um replicar este projeto localmente e iniciar o desenvolvimento de novas funcionalidades.
@@ -132,3 +143,4 @@ Os passos foram realizados no sistema operacional Windows, e fazendo uso do Visu
 
 
 
+<!-- Ordered by most recently "funded" -->
