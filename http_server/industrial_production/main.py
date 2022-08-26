@@ -31,33 +31,37 @@ mutex = threading.Lock()  # Mutex to protect dict from concurrent reads
 @app.post("/start_production")
 def start_production(production: current_production):
 
-    start = time.time()  # Initial production time of 'x' parts
-    current_date = date.today()
+    if (current_production_dict["status"] == "stopped") or (current_production_dict["status"] == "finished"):
+        start = time.time()  # Initial production time of 'x' parts
+        current_date = date.today()
 
-    mutex.acquire()
+        mutex.acquire()
 
-    # It will get the list from other scientific research
-    # list_of_events = file.heuristica(production.pc_to_produce_A, production.pc_to_produce_B)
-    current_production_dict["start_time"] = start
-    current_production_dict["production_date"] = current_date
-    current_production_dict["total_produced_a"] = production.pc_to_produce_a
-    current_production_dict["total_produced_b"] = production.pc_to_produce_b
-    # current_production_dict["event_list"] = list_of_events
+        # It will get the list from other scientific research
+        # list_of_events = file.heuristica(production.pc_to_produce_A, production.pc_to_produce_B)
+        current_production_dict["start_time"] = start
+        current_production_dict["production_date"] = current_date
+        current_production_dict["total_produced_a"] = production.pc_to_produce_a
+        current_production_dict["total_produced_b"] = production.pc_to_produce_b
+        # current_production_dict["event_list"] = list_of_events
 
-    # Production 1 
-    current_production_dict["event_list"] = ["B1_PRE", "B1_PRE_END", "B1_PREPARATION_A", "B1_POINT_OF_INTEREST_PRE_A",
-    "B1_FIN_A", "B1_FIN_A_END","B2_PRE", "B2_PRE_END","B2_PREPARATION_B", "B2_POINT_OF_INTEREST_PRE_B","B1_STOP", "B1_STOP_END",
-    "B2_FIN_B", "B2_FIN_B_END","B2_STOP", "B2_STOP_END"]
-    current_production_dict["final_event_list"] = ["B1_PRE", "B1_PRE_END", "B1_PREPARATION_A", "B1_POINT_OF_INTEREST_PRE_A",
-    "B1_FIN_A", "B1_FIN_A_END","B2_PRE", "B2_PRE_END","B2_PREPARATION_B", "B2_POINT_OF_INTEREST_PRE_B","B1_STOP", "B1_STOP_END",
-    "B2_FIN_B", "B2_FIN_B_END","B2_STOP", "B2_STOP_END"]
+        # Production 1 
+        current_production_dict["event_list"] = ["B1_PRE", "B1_PRE_END", "B1_PREPARATION_A", "B1_POINT_OF_INTEREST_PRE_A",
+        "B1_FIN_A", "B1_FIN_A_END","B2_PRE", "B2_PRE_END","B2_PREPARATION_B", "B2_POINT_OF_INTEREST_PRE_B","B1_STOP", "B1_STOP_END",
+        "B2_FIN_B", "B2_FIN_B_END","B2_STOP", "B2_STOP_END"]
+        current_production_dict["final_event_list"] = ["B1_PRE", "B1_PRE_END", "B1_PREPARATION_A", "B1_POINT_OF_INTEREST_PRE_A",
+        "B1_FIN_A", "B1_FIN_A_END","B2_PRE", "B2_PRE_END","B2_PREPARATION_B", "B2_POINT_OF_INTEREST_PRE_B","B1_STOP", "B1_STOP_END",
+        "B2_FIN_B", "B2_FIN_B_END","B2_STOP", "B2_STOP_END"]
+        
+        current_production_dict["machine_list"] = production.machine_list
+        current_production_dict["status"] = "started"
+        mutex.release()
+
+        return current_production_dict
     
-    current_production_dict["machine_list"] = production.machine_list
-    current_production_dict["status"] = "started"
-    mutex.release()
+    else:
 
-    return current_production_dict
-
+        return "Production has already started, wait until to be finished"
 
 @app.get("/get_event")
 def send_event_to_client():
@@ -102,97 +106,67 @@ def update_event_list_controllable(event: str):
         return {"message": "different"}  # Event other than head of queue
 
 
-@app.put("/end_event")
-def update_event_list_uncontrollable(event: str):
-
-    mutex.acquire()
-
-    if current_production_dict["event_list"] != []:
-
-        event_from_list = current_production_dict["event_list"][0]
-
-        if event == event_from_list:
-
-            del current_production_dict["event_list"][0]
-
-            if current_production_dict["event_list"] == []:
-
-                current_production_dict["status"] = "finished"
-                end = time.time()
-
-                current_production_dict["total_time"] = int(
-                    end - current_production_dict["start_time"]
-                )
-
-                insert_into_database()
-
-            mutex.release()
-            return {"message": "finished"}
-        else:
-            mutex.release()
-            return {"message": "different"}
-    else:
-        mutex.release()
-        return {"message": "finished"}
-
-
 def insert_into_database():
-
-    conn = psycopg2.connect(
-        host="localhost",
-        port=5432,
-        database="postgres",
-        user="postgres",
-        password="5492200",
-    )
-    conn1 = psycopg2.connect(
-        host="localhost",
-        port=5432,
-        database="postgres",
-        user="postgres",
-        password="5492200",
-    )
-
-    cursor_create_table = conn.cursor()
-    cursor_insert_table = conn1.cursor()
-
     try:
-        cursor_create_table.execute(
-            """
-            create table production (
-                user_id serial primary key,
-                total_time varchar(20) not null,
-                production_date date not null,
-                total_produced_a integer not null,
-                total_produced_b integer not null,
-                event_list text not null,
-                machine_list text not null
+
+        conn = psycopg2.connect(
+            host="localhost",
+            port=5432,
+            database="postgres",
+            user="postgres",
+            password="5492200",
+        )
+        conn1 = psycopg2.connect(
+            host="localhost",
+            port=5432,
+            database="postgres",
+            user="postgres",
+            password="5492200",
+        )
+
+        cursor_create_table = conn.cursor()
+        cursor_insert_table = conn1.cursor()
+
+        try:
+            cursor_create_table.execute(
+                """
+                create table production (
+                    user_id serial primary key,
+                    total_time varchar(20) not null,
+                    production_date date not null,
+                    total_produced_a integer not null,
+                    total_produced_b integer not null,
+                    event_list text not null,
+                    machine_list text not null
+                )
+                """
             )
+            conn.commit()
+        except:
+            print("Table already exists")
+
+        # Converting the two lists to strings
+        a = (
+            " ".join(current_production_dict["final_event_list"]),
+        )
+        b = " ".join(current_production_dict["machine_list"])
+
+        cursor_insert_table.execute(
             """
+                insert into production (total_time, production_date, total_produced_a, total_produced_b, event_list, machine_list)
+                values({0}, cast('{1}' as date), {2}, '{3}', '{4}', '{5}')
+            """.format(
+                current_production_dict["total_time"],
+                current_production_dict["production_date"],
+                current_production_dict["total_produced_a"],
+                current_production_dict["total_produced_b"],
+                a[0],
+                b,
+            )
         )
-        conn.commit()
+        conn1.commit()
+        conn.close()
+        conn1.close()
     except:
-        print("Table already exists")
-
-    # Converting the two lists to strings
-    a = (
-        " ".join(current_production_dict["final_event_list"]),
-    )
-    b = " ".join(current_production_dict["machine_list"])
-
-    cursor_insert_table.execute(
-        """
-            insert into production (total_time, production_date, total_produced_a, total_produced_b, event_list, machine_list)
-            values({0}, cast('{1}' as date), {2}, '{3}', '{4}', '{5}')
-        """.format(
-            current_production_dict["total_time"],
-            current_production_dict["production_date"],
-            current_production_dict["total_produced_a"],
-            current_production_dict["total_produced_b"],
-            a[0],
-            b,
-        )
-    )
-    conn1.commit()
-    conn.close()
-    conn1.close()
+    
+        print("Problems when inserting data into postgresql")
