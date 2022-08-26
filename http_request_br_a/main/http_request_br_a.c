@@ -41,6 +41,7 @@ char request2[25] = "PUT /confirm_event?event=";
 */
 int state_machine = 0;
 int processed = 0;
+int processed_abs_events = 0;
 
 static const char *request1 = "GET " "/get_event" " HTTP/1.0\r\n"
     "Host: "WEB_SERVER":"WEB_PORT"\r\n"
@@ -274,15 +275,11 @@ static void stateMachineWork(){
             gpio_set_level(33, 0);
             vTaskDelay(5000 / portTICK_PERIOD_MS); // Going to the preparation
 
-            ESP_LOGI(TAG, "Events non-modeled are processing!"); // Arrived on the preparation
             gpio_set_level(33, 1);
-            gpio_set_level(25, 1);
-            vTaskDelay(5000 / portTICK_PERIOD_MS);
-
-            gpio_set_level(25, 0);
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
             strcpy(event_to_update, "B1_FIN_A_END"); 
             processed = 1;
+            processed_abs_events = 0;
         break;
 
         case 5: // B1_FIN_B
@@ -291,13 +288,10 @@ static void stateMachineWork(){
             gpio_set_level(33, 0);
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
-            ESP_LOGI(TAG, "Events non-modeled are processing!");
             gpio_set_level(33, 1);
-            gpio_set_level(25, 1);
-            vTaskDelay(5000 / portTICK_PERIOD_MS);
-
             strcpy(event_to_update, "B1_FIN_B_END"); 
             processed = 1;
+            processed_abs_events = 0;
         break;
 
         case 6: // B1_PRE_A
@@ -348,16 +342,54 @@ static void stateMachineWork(){
             ESP_LOGI(TAG, "Event B1_SUPPORT is processing!");
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
-            ESP_LOGI(TAG, "Events non-modeled are processing!");
-            gpio_set_level(25, 1);
-            vTaskDelay(5000 / portTICK_PERIOD_MS);
-
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
-            strcpy(event_to_update, "B1_SUPPORT_END"); 
-            gpio_set_level(25, 0);
+            strcpy(event_to_update, "B1_SUPPORT_END");
             gpio_set_level(32, 1);
 
             processed = 1;
+            processed_abs_events = 0;
+
+        break;
+
+        case 10: // B1_POINT_OF_INTEREST_FIN_A
+            // EXECUTE SOME MOVIMENTS RELATED TO NON-MODELED EVENTS
+            gpio_set_level(25, 1);
+            ESP_LOGI(TAG, "Event abstrated from B1_POINT_OF_INTEREST_FIN_A is processing!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+            // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
+            strcpy(event_to_update, "B1_POINT_OF_INTEREST_FIN_A");
+            pio_set_level(25, 0);
+
+            processed_abs_events = 1;
+
+        break;
+
+        case 11: // B1_POINT_OF_INTEREST_FIN_B
+            // EXECUTE SOME MOVIMENTS RELATED TO NON-MODELED EVENTS
+            gpio_set_level(25, 1);
+            ESP_LOGI(TAG, "Event abstrated from B1_POINT_OF_INTEREST_FIN_B is processing!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+            // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
+            strcpy(event_to_update, "B1_POINT_OF_INTEREST_FIN_B");
+            pio_set_level(25, 0);
+
+            processed_abs_events = 1;
+
+        break;
+
+        case 12: // B1_MAINTENANCE
+            // EXECUTE SOME MOVIMENTS RELATED TO NON-MODELED EVENTS
+            gpio_set_level(25, 1);
+            ESP_LOGI(TAG, "Event abstrated from B1_MAINTENANCE is processing!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+            // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
+            strcpy(event_to_update, "B1_MAINTENANCE");
+            pio_set_level(25, 1);
+
+            processed_abs_events = 1;
 
         break;
     }
@@ -404,7 +436,7 @@ static void http_get_task(void *pvParameters)
             readHttpResponse(s); // event_read will be updated
             stateMachineControl();
 
-        }else{ // will process and update an uncontrollable event
+        }else if(state_machine == 2){ // will process and update an uncontrollable event
 
             if(processed == 0){
                 stateMachineWork();
@@ -427,6 +459,41 @@ static void http_get_task(void *pvParameters)
             readHttpResponse(s); // event_read will be updated
             stateMachineControl();
 
+            // This event were updated, it need to process and uptade again
+            if((strcmp(event_to_update, "B1_FIN_A_END") == 0) && (state_machine == 0)){
+                state_machine = 3;
+                event_to_process = 10;
+            }else if((strcmp(event_to_update, "B1_FIN_B_END") == 0) && (state_machine == 0)){
+                state_machine = 3;
+                event_to_process = 11;
+            }else if((strcmp(event_to_update, "B1_SUPPORT_END") == 0) && (state_machine == 0)){
+                state_machine = 3;
+                event_to_process = 12;
+            }
+
+        }else{
+
+            if(processed_abs_events == 0){
+                stateMachineWork();
+            }
+
+            char aux[200] = "";
+            strcat(aux, request2);
+            strcat(aux, event_to_update);
+            strcat(aux, req_patter);
+
+            // Send a request to update an event
+            if (write(s, aux, strlen(aux)) < 0) {
+                ESP_LOGE(TAG, "... socket send failed");
+                close(s);
+                vTaskDelay(1000 / portTICK_PERIOD_MS);
+                continue;
+            }
+
+            set_timeout(s);
+            readHttpResponse(s); // event_read will be updated
+            stateMachineControl();
+            
         }
 
         close(s);
