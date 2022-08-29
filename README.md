@@ -74,7 +74,7 @@ Para funcionamento completo deve ser instalado o postgresql, instruções em _Ba
 #### **Acesso local**
 
 Fazer o encaminhamento de porta:
-- netsh interface portproxy add v4tov4 listenport=8000 listenaddress=0.0.0.0 connectport=8000 connectaddress=172.21.68.115
+- netsh interface portproxy add v4tov4 listenport=8000 listenaddress=0.0.0.0 connectport=8000 connectaddress=192.168.107.28
 
 A opção connectaddress=(172.30.65.138) é o IP do WSL (pode ser recuperado com o comando: **ifconfing** no terminal do WSL)
 

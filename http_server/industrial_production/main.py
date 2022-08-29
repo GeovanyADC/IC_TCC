@@ -47,11 +47,17 @@ def start_production(production: current_production):
 
         # Production 1 
         current_production_dict["event_list"] = ["B1_PRE", "B1_PRE_END", "B1_PREPARATION_A", "B1_POINT_OF_INTEREST_PRE_A",
-        "B1_FIN_A", "B1_FIN_A_END","B2_PRE", "B2_PRE_END","B2_PREPARATION_B", "B2_POINT_OF_INTEREST_PRE_B","B1_STOP", "B1_STOP_END",
-        "B2_FIN_B", "B2_FIN_B_END","B2_STOP", "B2_STOP_END"]
+        "B1_FIN_A", "B1_FIN_A_END", "B1_POINT_OF_INTEREST_FIN_A","B2_PRE", "B2_PRE_END","B2_PREPARATION_B", "B2_POINT_OF_INTEREST_PRE_B","B1_STOP", "B1_STOP_END",
+        "B2_FIN_B", "B2_FIN_B_END","B2_POINT_OF_INTEREST_FIN_B","B2_STOP", "B2_STOP_END"]
         current_production_dict["final_event_list"] = ["B1_PRE", "B1_PRE_END", "B1_PREPARATION_A", "B1_POINT_OF_INTEREST_PRE_A",
-        "B1_FIN_A", "B1_FIN_A_END","B2_PRE", "B2_PRE_END","B2_PREPARATION_B", "B2_POINT_OF_INTEREST_PRE_B","B1_STOP", "B1_STOP_END",
-        "B2_FIN_B", "B2_FIN_B_END","B2_STOP", "B2_STOP_END"]
+        "B1_FIN_A", "B1_FIN_A_END", "B1_POINT_OF_INTEREST_FIN_A","B2_PRE", "B2_PRE_END","B2_PREPARATION_B", "B2_POINT_OF_INTEREST_PRE_B","B1_STOP", "B1_STOP_END",
+        "B2_FIN_B", "B2_FIN_B_END","B2_POINT_OF_INTEREST_FIN_B","B2_STOP", "B2_STOP_END"]
+
+        # current_production_dict["event_list"] = ["B2_PRE", "B2_PRE_END", "B2_PREPARATION_A", "B2_POINT_OF_INTEREST_PRE_A",
+        # "B2_FIN_A", "B2_FIN_A_END", "B2_POINT_OF_INTEREST_FIN_A","B2_SUPPORT", "B2_SUPPORT_END", "B2_MAINTENANCE"]
+
+        # current_production_dict["final_event_list"] = ["B2_PRE", "B2_PRE_END", "B2_PREPARATION_A", "B2_POINT_OF_INTEREST_PRE_A",
+        # "B2_FIN_A", "B2_FIN_A_END", "B2_POINT_OF_INTEREST_FIN_A","B2_SUPPORT", "B2_SUPPORT_END", "B2_MAINTENANCE"]
         
         current_production_dict["machine_list"] = production.machine_list
         current_production_dict["status"] = "started"
@@ -111,6 +117,7 @@ def insert_into_database():
 
         conn = psycopg2.connect(
             host="localhost",
+            # host="postgres", // AWS
             port=5432,
             database="postgres",
             user="postgres",
@@ -118,6 +125,7 @@ def insert_into_database():
         )
         conn1 = psycopg2.connect(
             host="localhost",
+            # host="postgres", // AWS
             port=5432,
             database="postgres",
             user="postgres",

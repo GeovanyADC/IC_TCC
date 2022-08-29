@@ -28,6 +28,10 @@
 #define WEB_SERVER "192.168.0.71"
 #define WEB_PORT "8000"
 
+// AWS
+// #define WEB_SERVER "192.168.0.71"
+// #define WEB_PORT "80"
+
 static const char *TAG = "example";
 char event_read[30] = "";
 char event_to_update[30] = "";
@@ -37,7 +41,7 @@ char request2[25] = "PUT /confirm_event?event=";
 /* State machine representation:
     0 - waiting for an event
     1 - will update a controllable event
-    2 - process and update an uncontrollable event
+    2 - process and update an event
 */
 int state_machine = 0;
 int processed = 0;
@@ -359,7 +363,7 @@ static void stateMachineWork(){
 
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
             strcpy(event_to_update, "B1_POINT_OF_INTEREST_FIN_A");
-            pio_set_level(25, 0);
+            gpio_set_level(25, 0);
 
             processed_abs_events = 1;
 
@@ -373,7 +377,7 @@ static void stateMachineWork(){
 
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
             strcpy(event_to_update, "B1_POINT_OF_INTEREST_FIN_B");
-            pio_set_level(25, 0);
+            gpio_set_level(25, 0);
 
             processed_abs_events = 1;
 
@@ -381,13 +385,15 @@ static void stateMachineWork(){
 
         case 12: // B1_MAINTENANCE
             // EXECUTE SOME MOVIMENTS RELATED TO NON-MODELED EVENTS
+            gpio_set_level(32, 0);
             gpio_set_level(25, 1);
             ESP_LOGI(TAG, "Event abstrated from B1_MAINTENANCE is processing!");
             vTaskDelay(5000 / portTICK_PERIOD_MS);
 
             // SEND THE EVENT OF END THAT IS UNCONTROLLABLE
             strcpy(event_to_update, "B1_MAINTENANCE");
-            pio_set_level(25, 1);
+            gpio_set_level(25, 0);
+            gpio_set_level(32, 1);
 
             processed_abs_events = 1;
 
@@ -436,7 +442,7 @@ static void http_get_task(void *pvParameters)
             readHttpResponse(s); // event_read will be updated
             stateMachineControl();
 
-        }else if(state_machine == 2){ // will process and update an uncontrollable event
+        }else if(state_machine == 2){ // will process and update an event
 
             if(processed == 0){
                 stateMachineWork();
