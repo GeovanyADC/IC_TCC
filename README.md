@@ -1,4 +1,4 @@
-# **Arquitetura para controle supervisório descentralizado**
+# **Arquitetura para a implementação de controle supervisório descentralizado**
 
 **Índice**
 
