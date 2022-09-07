@@ -4,6 +4,7 @@ from datetime import date
 import time
 import threading
 import psycopg2
+import os
 
 app = FastAPI()
 
@@ -37,28 +38,37 @@ def start_production(production: current_production):
 
         mutex.acquire()
 
-        # It will get the list from other scientific research
-        # list_of_events = file.heuristica(production.pc_to_produce_A, production.pc_to_produce_B)
         current_production_dict["start_time"] = start
         current_production_dict["production_date"] = current_date
         current_production_dict["total_produced_a"] = production.pc_to_produce_a
         current_production_dict["total_produced_b"] = production.pc_to_produce_b
-        # current_production_dict["event_list"] = list_of_events
 
-        # Production 1 
-        current_production_dict["event_list"] = ["B1_PRE", "B1_PRE_END", "B1_PREPARATION_A", "B1_POINT_OF_INTEREST_PRE_A",
-        "B1_FIN_A", "B1_FIN_A_END", "B1_POINT_OF_INTEREST_FIN_A","B2_PRE", "B2_PRE_END","B2_PREPARATION_B", "B2_POINT_OF_INTEREST_PRE_B","B1_STOP", "B1_STOP_END",
-        "B2_FIN_B", "B2_FIN_B_END","B2_POINT_OF_INTEREST_FIN_B","B2_STOP", "B2_STOP_END"]
-        current_production_dict["final_event_list"] = ["B1_PRE", "B1_PRE_END", "B1_PREPARATION_A", "B1_POINT_OF_INTEREST_PRE_A",
-        "B1_FIN_A", "B1_FIN_A_END", "B1_POINT_OF_INTEREST_FIN_A","B2_PRE", "B2_PRE_END","B2_PREPARATION_B", "B2_POINT_OF_INTEREST_PRE_B","B1_STOP", "B1_STOP_END",
-        "B2_FIN_B", "B2_FIN_B_END","B2_POINT_OF_INTEREST_FIN_B","B2_STOP", "B2_STOP_END"]
-
-        # current_production_dict["event_list"] = ["B2_PRE", "B2_PRE_END", "B2_PREPARATION_A", "B2_POINT_OF_INTEREST_PRE_A",
-        # "B2_FIN_A", "B2_FIN_A_END", "B2_POINT_OF_INTEREST_FIN_A","B2_SUPPORT", "B2_SUPPORT_END", "B2_MAINTENANCE"]
-
-        # current_production_dict["final_event_list"] = ["B2_PRE", "B2_PRE_END", "B2_PREPARATION_A", "B2_POINT_OF_INTEREST_PRE_A",
-        # "B2_FIN_A", "B2_FIN_A_END", "B2_POINT_OF_INTEREST_FIN_A","B2_SUPPORT", "B2_SUPPORT_END", "B2_MAINTENANCE"]
+        # It will get the list from other scientific research
+        os.system('python3 colonia.py {0} {1}'.format(production.pc_to_produce_a, production.pc_to_produce_b))
         
+        current_production_dict["final_event_list"] = []
+        list_of_events = []
+        with open('list.txt') as f:
+            file = f.read()
+            file = file.split(" ")
+            for i in file:
+                list_of_events.append("{0}".format(i))
+                current_production_dict["final_event_list"].append("{0}".format(i))
+
+        print(list_of_events)
+        print(type(list_of_events))
+
+        current_production_dict["event_list"] = list_of_events
+        current_production_dict["final_event_list"] = list_of_events
+        
+        # Production 1 
+        # current_production_dict["event_list"] = ["B1_PRE", "B1_PRE_END", "B1_PREPARATION_A", "B1_POINT_OF_INTEREST_PRE_A",
+        # "B1_FIN_A", "B1_FIN_A_END", "B1_POINT_OF_INTEREST_FIN_A","B2_PRE", "B2_PRE_END","B2_PREPARATION_B", "B2_POINT_OF_INTEREST_PRE_B","B1_STOP", "B1_STOP_END",
+        # "B2_FIN_B", "B2_FIN_B_END","B2_POINT_OF_INTEREST_FIN_B","B2_STOP", "B2_STOP_END"]
+        # current_production_dict["final_event_list"] = ["B1_PRE", "B1_PRE_END", "B1_PREPARATION_A", "B1_POINT_OF_INTEREST_PRE_A",
+        # "B1_FIN_A", "B1_FIN_A_END", "B1_POINT_OF_INTEREST_FIN_A","B2_PRE", "B2_PRE_END","B2_PREPARATION_B", "B2_POINT_OF_INTEREST_PRE_B","B1_STOP", "B1_STOP_END",
+        # "B2_FIN_B", "B2_FIN_B_END","B2_POINT_OF_INTEREST_FIN_B","B2_STOP", "B2_STOP_END"]
+
         current_production_dict["machine_list"] = production.machine_list
         current_production_dict["status"] = "started"
         mutex.release()
@@ -154,11 +164,13 @@ def insert_into_database():
             print("Table already exists")
 
         # Converting the two lists to strings
+        
         a = (
             " ".join(current_production_dict["final_event_list"]),
         )
         b = " ".join(current_production_dict["machine_list"])
 
+        print("teste", a)
         cursor_insert_table.execute(
             """
                 insert into production (total_time, production_date, total_produced_a, total_produced_b, event_list, machine_list)
