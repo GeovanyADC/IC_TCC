@@ -22,7 +22,6 @@ df_cost["Cost"].tolist()
 
 # inicializando lista com os custos dos eventos.
 list_cost = df_cost["Cost"].tolist();
-print(list_cost);
 
 # inserindo os custos relativos a cada evento no dataframe de eventos.
 df_events.insert(2,"cost",list_cost)
@@ -156,10 +155,10 @@ def ant_sytem(t:int,k:int,Q:float,P:float, tal:np.array, eta:np.array, alpha:flo
 #         print("iteracao")
 #         print(i);
         
-        if(i > 100): # Condição de parada, número de iterações
+        if(i > 60): # Condição de parada, número de iterações
 
-            print("sua distancia")
-            print(dist_S);
+            # print("sua distancia")
+            # print(dist_S);
             return route_S,chart_dist_ls,chart_dist_s;
         
         start = time.process_time();
@@ -479,10 +478,12 @@ P=0.37;
 # #quantidade de produtos a ser produzidos
 A = int(sys.argv[1])
 B = int(sys.argv[2])
+dinamic_initial = []
+dinamic_initial.append(int(sys.argv[3]))
 
-print(A, B)
+print("Initial State:", dinamic_initial)
 
-route_S_1,chart_dist_ls_1,chart_dist_s_1 = ant_sytem(t,k,Q,P, tal, eta, alpha, beta,transitions, initial, acceptance,A,B);
+route_S_1,chart_dist_ls_1,chart_dist_s_1 = ant_sytem(t,k,Q,P, tal, eta, alpha, beta,transitions, dinamic_initial, acceptance,A,B);
 
 ROUTE = route_S_1;
 
@@ -494,15 +495,18 @@ for i in range(len(ROUTE)):
         label = df_events.loc[df_events["id"] == transitions[ROUTE[i],ROUTE[i+1]],["label"]].values[0,0]        
         #         print(transitions[ROUTE[i],ROUTE[i+1]]);  
         # print(label)
-
         list.append(label)
 
+print("Last state after the end of this list:" ,ROUTE[-1])
 
 #open text file
-text_file = open("list.txt", "w")
+txt_file_list = open("list.txt", "w")
+txt_file_state = open("initialstate.txt", "w")
  
 #write string to file
-text_file.write(' '.join(list))
+txt_file_list.write(' '.join(list)) # Salva a lista de eventos
+txt_file_state.write(str(ROUTE[-1])) # Salva o estado em que os os braços robóticos pararam
  
 #close file
-text_file.close()
+txt_file_list.close()
+txt_file_state.close()

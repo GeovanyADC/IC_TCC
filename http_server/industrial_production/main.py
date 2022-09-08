@@ -42,10 +42,18 @@ def start_production(production: current_production):
         current_production_dict["production_date"] = current_date
         current_production_dict["total_produced_a"] = production.pc_to_produce_a
         current_production_dict["total_produced_b"] = production.pc_to_produce_b
+        
+        # Get the initial state
+        state = ""
+        with open('initialstate.txt') as init:
+            state = init.read()
+            print("Current state: ", state)
+
+        # It starts the other scientific research
+        os.system('python3 colonia.py {0} {1} {2}'.format(production.pc_to_produce_a, production.pc_to_produce_b, state))
 
         # It will get the list from other scientific research
-        os.system('python3 colonia.py {0} {1}'.format(production.pc_to_produce_a, production.pc_to_produce_b))
-        
+        # Read the event list from ant alg
         list_of_events = []
         with open('list.txt') as f:
             file = f.read()
@@ -53,8 +61,10 @@ def start_production(production: current_production):
             for i in file:
                 list_of_events.append("{0}".format(i))
 
-        print(list_of_events)
-        print(type(list_of_events))
+        init.close()
+        f.close()
+
+        print("List of events received from ant alg: ",list_of_events)
 
         current_production_dict["event_list"] = list_of_events
 
@@ -170,7 +180,6 @@ def insert_into_database():
         )
         b = " ".join(current_production_dict["machine_list"])
 
-        print("teste", a)
         cursor_insert_table.execute(
             """
                 insert into production (total_time, production_date, total_produced_a, total_produced_b, event_list, machine_list)
