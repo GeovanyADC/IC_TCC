@@ -135,22 +135,22 @@ def insert_into_database():
     try:
 
         conn = psycopg2.connect(
-            host="localhost",
-            # host="postgres", // AWS
+            # host="localhost",
+            host="postgres", # AWS
             port=5432,
             database="postgres",
             user="postgres",
-            password="postgres",
-            # password="5492200",
+            # password="postgres",
+            password="5492200",
         )
         conn1 = psycopg2.connect(
-            host="localhost",
-            # host="postgres", // AWS
+            # host="localhost",
+            host="postgres", # AWS
             port=5432,
             database="postgres",
             user="postgres",
-            password="postgres",
-            # password="5492200",
+            # password="postgres",
+            password="5492200",
         )
 
         cursor_create_table = conn.cursor()
