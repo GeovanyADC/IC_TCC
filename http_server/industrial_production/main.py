@@ -23,7 +23,7 @@ current_production_dict = {
     "event_list": None,
     "machine_list": None,
     "status": "stopped",
-    "final_event_list": None,
+    "final_list_of_events": None,
 }
 
 mutex = threading.Lock()  # Mutex to protect dict from concurrent reads
@@ -46,26 +46,25 @@ def start_production(production: current_production):
         # It will get the list from other scientific research
         os.system('python3 colonia.py {0} {1}'.format(production.pc_to_produce_a, production.pc_to_produce_b))
         
-        current_production_dict["final_event_list"] = []
         list_of_events = []
         with open('list.txt') as f:
             file = f.read()
             file = file.split(" ")
             for i in file:
                 list_of_events.append("{0}".format(i))
-                current_production_dict["final_event_list"].append("{0}".format(i))
 
         print(list_of_events)
         print(type(list_of_events))
 
         current_production_dict["event_list"] = list_of_events
-        current_production_dict["final_event_list"] = list_of_events
+
+        current_production_dict["final_list_of_events"] = list_of_events.copy()
         
         # Production 1 
         # current_production_dict["event_list"] = ["B1_PRE", "B1_PRE_END", "B1_PREPARATION_A", "B1_POINT_OF_INTEREST_PRE_A",
         # "B1_FIN_A", "B1_FIN_A_END", "B1_POINT_OF_INTEREST_FIN_A","B2_PRE", "B2_PRE_END","B2_PREPARATION_B", "B2_POINT_OF_INTEREST_PRE_B","B1_STOP", "B1_STOP_END",
         # "B2_FIN_B", "B2_FIN_B_END","B2_POINT_OF_INTEREST_FIN_B","B2_STOP", "B2_STOP_END"]
-        # current_production_dict["final_event_list"] = ["B1_PRE", "B1_PRE_END", "B1_PREPARATION_A", "B1_POINT_OF_INTEREST_PRE_A",
+        # current_production_dict["final_list_of_events""] = ["B1_PRE", "B1_PRE_END", "B1_PREPARATION_A", "B1_POINT_OF_INTEREST_PRE_A",
         # "B1_FIN_A", "B1_FIN_A_END", "B1_POINT_OF_INTEREST_FIN_A","B2_PRE", "B2_PRE_END","B2_PREPARATION_B", "B2_POINT_OF_INTEREST_PRE_B","B1_STOP", "B1_STOP_END",
         # "B2_FIN_B", "B2_FIN_B_END","B2_POINT_OF_INTEREST_FIN_B","B2_STOP", "B2_STOP_END"]
 
@@ -131,7 +130,8 @@ def insert_into_database():
             port=5432,
             database="postgres",
             user="postgres",
-            password="5492200",
+            password="postgres",
+            # password="5492200",
         )
         conn1 = psycopg2.connect(
             host="localhost",
@@ -139,7 +139,8 @@ def insert_into_database():
             port=5432,
             database="postgres",
             user="postgres",
-            password="5492200",
+            password="postgres",
+            # password="5492200",
         )
 
         cursor_create_table = conn.cursor()
@@ -164,9 +165,8 @@ def insert_into_database():
             print("Table already exists")
 
         # Converting the two lists to strings
-        
         a = (
-            " ".join(current_production_dict["final_event_list"]),
+            " ".join(current_production_dict["final_list_of_events"]),
         )
         b = " ".join(current_production_dict["machine_list"])
 
